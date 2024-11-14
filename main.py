@@ -1,5 +1,6 @@
 import turtle
 import winsound
+import math
 
 # Set up the screen
 window = turtle.Screen()
@@ -7,6 +8,9 @@ window.title("Pong Game")
 window.bgcolor("black")
 window.setup(width=1200, height=700)
 window.tracer(0)
+
+# Constants
+BALL_SPEED = 0.15  # Fixed ball speed
 
 # Paddle 1
 paddle1 = turtle.Turtle()
@@ -28,13 +32,16 @@ paddle2.goto(550, 0)
 
 # Ball
 ball = turtle.Turtle()
-ball.speed(1)  # This is the animation speed, not movement speed
+ball.speed(1)  # Animation speed, not movement speed
 ball.shape("square")
 ball.color("white")
 ball.penup()
 ball.goto(0, 0)
-ball.dx = 0.3
-ball.dy = 0.3
+
+# Set initial angle
+angle = 45  # You can change this to experiment with different start angles
+ball.dx = BALL_SPEED * math.cos(math.radians(angle))
+ball.dy = BALL_SPEED * math.sin(math.radians(angle))
 
 # Scoring
 score_a = 0
@@ -84,14 +91,17 @@ try:
         ball.setx(ball.xcor() + ball.dx)
         ball.sety(ball.ycor() + ball.dy)
 
-        # Border collision
+        # Border collision (Top/Bottom)
         if ball.ycor() > 340 or ball.ycor() < -340:
-            ball.dy *= -1
+            ball.dy = -ball.dy  # Reverse the y direction
             winsound.PlaySound("wall.wav", winsound.SND_ASYNC)
 
+        # Border collision (Left/Right - Scoring)
         if ball.xcor() > 590:
             ball.goto(0, 0)
-            ball.dx *= -1
+            angle = 45 if score_a % 2 == 0 else 135  # Alternate angles for variety
+            ball.dx = BALL_SPEED * math.cos(math.radians(angle))
+            ball.dy = BALL_SPEED * math.sin(math.radians(angle))
             score_a += 1
             pen.clear()
             pen.write("Player A : {}  Player B : {}".format(score_a, score_b), align="center", font=("Courier", 24, "bold"))
@@ -99,7 +109,9 @@ try:
 
         if ball.xcor() < -590:
             ball.goto(0, 0)
-            ball.dx *= -1
+            angle = -45 if score_b % 2 == 0 else -135  # Alternate angles for variety
+            ball.dx = BALL_SPEED * math.cos(math.radians(angle))
+            ball.dy = BALL_SPEED * math.sin(math.radians(angle))
             score_b += 1
             pen.clear()
             pen.write("Player A : {}  Player B : {}".format(score_a, score_b), align="center", font=("Courier", 24, "bold"))
@@ -108,12 +120,12 @@ try:
         # Paddle collision
         if (540 < ball.xcor() < 550) and (paddle2.ycor() - 50 < ball.ycor() < paddle2.ycor() + 50):
             ball.setx(540)
-            ball.dx *= -1
+            ball.dx = -ball.dx  # Reverse x direction
             winsound.PlaySound("paddle.wav", winsound.SND_ASYNC)
 
         if (-540 > ball.xcor() > -550) and (paddle1.ycor() - 50 < ball.ycor() < paddle1.ycor() + 50):
             ball.setx(-540)
-            ball.dx *= -1
+            ball.dx = -ball.dx  # Reverse x direction
             winsound.PlaySound("paddle.wav", winsound.SND_ASYNC)
 
 except turtle.Terminator:
