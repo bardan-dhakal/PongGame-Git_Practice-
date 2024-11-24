@@ -75,17 +75,26 @@ def paddle2_down():
     if y > -305:
         paddle2.sety(y - 20)
 
+def quit_game():
+    """Function to quit the game and close the window."""
+    window.bye()
+
 # Keyboard binding
 window.listen()
 window.onkeypress(paddle1_up, "w")
 window.onkeypress(paddle1_down, "s")
 window.onkeypress(paddle2_up, "Up")
 window.onkeypress(paddle2_down, "Down")
+window.onkeypress(quit_game, "q")  # Press 'q' to quit the game
 
 # Main game loop
 try:
     while True:
-        window.update()
+        try:
+            window.update()
+        except turtle.Terminator:
+            print("Game window closed.")
+            break
         
         # Move the ball
         ball.setx(ball.xcor() + ball.dx)
